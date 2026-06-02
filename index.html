@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HaloHaven — Blessed Rebellion</title>
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #080808;
+      --off-black: #0e0e0e;
+      --dark: #141414;
+      --mid: #1e1e1e;
+      --border: #2a2a2a;
+      --silver: #a0a0a0;
+      --silver-light: #c8c8c8;
+      --white: #f0ede8;
+      --cream: #e8e2d8;
+      --gold: #c9a84c;
+      --gold-dim: #7a6128;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      width: 10px; height: 10px;
+      background: var(--white);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease, background 0.2s;
+      transform: translate(-50%, -50%);
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(200,200,200,0.4);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    /* Noise overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.5;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 500;
+      padding: 28px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(to bottom, rgba(8,8,8,0.9) 0%, transparent 100%);
+    }
+    .nav-logo {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: 28px;
+      color: var(--white);
+      letter-spacing: 2px;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 40px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--white); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      padding: 120px 48px 80px;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 80% at 50% 40%, rgba(201,168,76,0.04) 0%, transparent 60%),
+        radial-gradient(ellipse 100% 60% at 50% 100%, rgba(8,8,8,0.95) 0%, transparent 100%),
+        var(--black);
+    }
+
+    /* Angel SVG background art */
+    .hero-art {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0.07;
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 32px;
+      position: relative;
+      z-index: 2;
+      animation: fadeUp 1s ease 0.2s both;
+    }
+
+    .hero-title {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: clamp(80px, 14vw, 180px);
+      line-height: 0.9;
+      color: var(--white);
+      position: relative;
+      z-index: 2;
+      animation: fadeUp 1s ease 0.4s both;
+      text-shadow: 0 0 80px rgba(201,168,76,0.15);
+    }
+
+    .hero-subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: clamp(18px, 2.5vw, 28px);
+      color: var(--silver);
+      margin-top: 24px;
+      letter-spacing: 2px;
+      position: relative;
+      z-index: 2;
+      animation: fadeUp 1s ease 0.6s both;
+    }
+
+    .hero-divider {
+      width: 1px;
+      height: 80px;
+      background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+      margin: 48px auto;
+      position: relative;
+      z-index: 2;
+      animation: fadeUp 1s ease 0.8s both;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 20px;
+      position: relative;
+      z-index: 2;
+      animation: fadeUp 1s ease 1s both;
+    }
+
+    .btn-primary {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      padding: 18px 48px;
+      background: var(--white);
+      color: var(--black);
+      border: none;
+      cursor: none;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+    .btn-primary:hover {
+      background: var(--gold);
+      color: var(--black);
+      transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      padding: 18px 48px;
+      background: transparent;
+      color: var(--white);
+      border: 1px solid rgba(240,237,232,0.3);
+      cursor: none;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+    .btn-ghost:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    /* MARQUEE */
+    .marquee-wrap {
+      overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+      background: var(--off-black);
+    }
+    .marquee-track {
+      display: flex;
+      gap: 0;
+      white-space: nowrap;
+      animation: marquee 30s linear infinite;
+    }
+    .marquee-track span {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--silver);
+      padding: 0 40px;
+    }
+    .marquee-track span.gold { color: var(--gold); }
+
+    /* PRODUCT */
+    .product {
+      padding: 140px 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .product-visual {
+      position: relative;
+      aspect-ratio: 3/4;
+      background: var(--dark);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .product-visual::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(201,168,76,0.05) 0%, transparent 50%, rgba(201,168,76,0.03) 100%);
+    }
+
+    .product-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      color: var(--silver);
+      font-size: 12px;
+      letter-spacing: 3px;
+      font-family: 'Space Mono', monospace;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 40px;
+      z-index: 1;
+      position: relative;
+    }
+
+    .product-info { padding-left: 20px; }
+
+    .product-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 24px;
+    }
+
+    .product-name {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(28px, 4vw, 52px);
+      font-weight: 400;
+      line-height: 1.1;
+      color: var(--white);
+      margin-bottom: 32px;
+    }
+
+    .product-desc {
+      font-size: 18px;
+      line-height: 1.8;
+      color: var(--silver-light);
+      margin-bottom: 40px;
+      font-style: italic;
+    }
+
+    .product-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 48px;
+    }
+    .tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      color: var(--silver);
+    }
+
+    .product-price {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 36px;
+      color: var(--white);
+      margin-bottom: 36px;
+    }
+    .product-price span {
+      font-size: 14px;
+      color: var(--silver);
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-left: 12px;
+    }
+
+    /* FEATURES */
+    .features {
+      padding: 100px 48px;
+      border-top: 1px solid var(--border);
+      background: var(--off-black);
+    }
+    .features-header {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+    .section-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+      display: block;
+    }
+    .section-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(24px, 4vw, 48px);
+      font-weight: 400;
+      color: var(--white);
+      line-height: 1.2;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .feature-item {
+      background: var(--off-black);
+      padding: 56px 40px;
+      transition: background 0.3s;
+    }
+    .feature-item:hover { background: var(--dark); }
+
+    .feature-icon {
+      width: 48px; height: 48px;
+      margin-bottom: 28px;
+    }
+
+    .feature-name {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--white);
+      margin-bottom: 16px;
+    }
+    .feature-desc {
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--silver);
+      font-style: italic;
+    }
+
+    /* SET */
+    .set-section {
+      padding: 140px 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .set-visual {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 20px;
+      height: 600px;
+    }
+    .set-card {
+      background: var(--dark);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--silver);
+      text-transform: uppercase;
+      text-align: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .set-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 60%, rgba(201,168,76,0.06) 100%);
+    }
+    .set-card.featured { grid-row: span 2; }
+
+    /* PHILOSOPHY */
+    .philosophy {
+      padding: 140px 48px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .philosophy-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 100% at 50% 50%, rgba(201,168,76,0.03) 0%, transparent 70%);
+    }
+    .philosophy-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: clamp(28px, 5vw, 64px);
+      line-height: 1.3;
+      color: var(--white);
+      max-width: 900px;
+      margin: 0 auto 48px;
+      position: relative;
+      z-index: 2;
+    }
+    .philosophy-quote em {
+      color: var(--gold);
+      font-style: normal;
+    }
+    .philosophy-attr {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--silver);
+      position: relative;
+      z-index: 2;
+    }
+
+    /* SIZING */
+    .sizing {
+      padding: 100px 48px;
+      border-top: 1px solid var(--border);
+      background: var(--off-black);
+    }
+    .sizing-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .sizing-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 60px;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+    }
+    .sizing-table th {
+      padding: 16px 24px;
+      text-align: left;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      border-bottom: 1px solid var(--border);
+      font-weight: 400;
+    }
+    .sizing-table td {
+      padding: 20px 24px;
+      color: var(--silver-light);
+      border-bottom: 1px solid rgba(42,42,42,0.5);
+      font-style: normal;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+    }
+    .sizing-table tr:hover td { color: var(--white); }
+
+    /* CTA */
+    .final-cta {
+      padding: 160px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .final-cta-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(201,168,76,0.06) 0%, transparent 70%);
+    }
+    .final-cta h2 {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: clamp(50px, 10vw, 120px);
+      color: var(--white);
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 2;
+    }
+    .final-cta p {
+      font-style: italic;
+      font-size: 22px;
+      color: var(--silver);
+      margin-bottom: 60px;
+      position: relative;
+      z-index: 2;
+    }
+    .final-cta .hero-cta { justify-content: center; position: relative; z-index: 2; }
+
+    /* FOOTER */
+    footer {
+      padding: 60px 48px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-logo {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: 24px;
+      color: var(--silver);
+    }
+    .footer-copy {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver);
+      opacity: 0.5;
+    }
+    .footer-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+    .footer-links a {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--silver);
+      text-decoration: none;
+      opacity: 0.5;
+      transition: opacity 0.3s;
+    }
+    .footer-links a:hover { opacity: 1; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 900px) {
+      nav { padding: 24px 24px; }
+      .nav-links { display: none; }
+      .product, .set-section {
+        grid-template-columns: 1fr;
+        padding: 80px 24px;
+        gap: 48px;
+      }
+      .features-grid { grid-template-columns: 1fr; }
+      .set-visual { height: 400px; }
+      .hero { padding: 100px 24px 60px; }
+      footer { flex-direction: column; gap: 24px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#">HaloHaven</a>
+    <ul class="nav-links">
+      <li><a href="#product">Collection</a></li>
+      <li><a href="#set">The Set</a></li>
+      <li><a href="#sizing">Sizing</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+
+    <!-- Angel art -->
+    <div class="hero-art">
+      <svg viewBox="0 0 600 700" width="600" height="700" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Halo -->
+        <ellipse cx="300" cy="140" rx="110" ry="22" stroke="white" stroke-width="2"/>
+        <ellipse cx="300" cy="140" rx="90" ry="16" stroke="white" stroke-width="0.5"/>
+        <!-- Wing left -->
+        <path d="M300 280 C230 220, 80 200, 40 280 C80 320, 160 310, 300 340" stroke="white" stroke-width="1.5" fill="none"/>
+        <path d="M300 280 C220 240, 100 250, 60 310" stroke="white" stroke-width="0.7" fill="none"/>
+        <path d="M300 280 C240 260, 130 270, 80 330" stroke="white" stroke-width="0.7" fill="none"/>
+        <path d="M300 280 C260 270, 160 295, 120 350" stroke="white" stroke-width="0.7" fill="none"/>
+        <!-- Wing right -->
+        <path d="M300 280 C370 220, 520 200, 560 280 C520 320, 440 310, 300 340" stroke="white" stroke-width="1.5" fill="none"/>
+        <path d="M300 280 C380 240, 500 250, 540 310" stroke="white" stroke-width="0.7" fill="none"/>
+        <path d="M300 280 C360 260, 470 270, 520 330" stroke="white" stroke-width="0.7" fill="none"/>
+        <path d="M300 280 C340 270, 440 295, 480 350" stroke="white" stroke-width="0.7" fill="none"/>
+        <!-- Figure -->
+        <ellipse cx="300" cy="200" rx="40" ry="50" stroke="white" stroke-width="1.5"/>
+        <path d="M260 245 C240 340, 240 460, 270 560" stroke="white" stroke-width="1.5"/>
+        <path d="M340 245 C360 340, 360 460, 330 560" stroke="white" stroke-width="1.5"/>
+        <path d="M270 560 C280 580, 320 580, 330 560" stroke="white" stroke-width="1"/>
+        <!-- Arms -->
+        <path d="M265 270 C220 300, 160 280, 130 320" stroke="white" stroke-width="1"/>
+        <path d="M335 270 C380 300, 440 280, 470 320" stroke="white" stroke-width="1"/>
+        <!-- Decorative lines -->
+        <path d="M200 600 L400 600" stroke="white" stroke-width="0.5" opacity="0.3"/>
+        <path d="M150 620 L450 620" stroke="white" stroke-width="0.3" opacity="0.2"/>
+        <text x="300" y="650" text-anchor="middle" fill="white" font-family="serif" font-size="14" letter-spacing="8" opacity="0.4">HALOHAVEN</text>
+      </svg>
+    </div>
+
+    <p class="hero-eyebrow">Premium Streetwear — Est. 2024</p>
+    <h1 class="hero-title">HaloHaven</h1>
+    <p class="hero-subtitle">Where serenity meets rebellion</p>
+    <div class="hero-divider"></div>
+    <div class="hero-cta">
+      <a href="https://j-k-9945.myshopify.com" target="_blank" class="btn-primary">Shop Now</a>
+      <a href="#set" class="btn-ghost">View Full Set</a>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span>Blessed Rebellion</span><span class="gold">✦</span>
+      <span>Gothic Luxury</span><span class="gold">✦</span>
+      <span>Angel Aesthetic</span><span class="gold">✦</span>
+      <span>Black on Black</span><span class="gold">✦</span>
+      <span>Premium Streetwear</span><span class="gold">✦</span>
+      <span>Halo Wing Graphics</span><span class="gold">✦</span>
+      <span>Limited Edition</span><span class="gold">✦</span>
+      <span>Crafted for Statement</span><span class="gold">✦</span>
+      <!-- duplicate for infinite loop -->
+      <span>Blessed Rebellion</span><span class="gold">✦</span>
+      <span>Gothic Luxury</span><span class="gold">✦</span>
+      <span>Angel Aesthetic</span><span class="gold">✦</span>
+      <span>Black on Black</span><span class="gold">✦</span>
+      <span>Premium Streetwear</span><span class="gold">✦</span>
+      <span>Halo Wing Graphics</span><span class="gold">✦</span>
+      <span>Limited Edition</span><span class="gold">✦</span>
+      <span>Crafted for Statement</span><span class="gold">✦</span>
+    </div>
+  </div>
+
+  <!-- PRODUCT -->
+  <section class="product" id="product">
+    <div class="product-visual reveal">
+      <div class="product-placeholder">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+          <ellipse cx="40" cy="18" rx="18" ry="4" stroke="#c9a84c" stroke-width="1"/>
+          <path d="M40 38 C28 30, 8 28, 4 40 C12 48, 28 46, 40 50" stroke="#a0a0a0" stroke-width="1" fill="none"/>
+          <path d="M40 38 C52 30, 72 28, 76 40 C68 48, 52 46, 40 50" stroke="#a0a0a0" stroke-width="1" fill="none"/>
+          <ellipse cx="40" cy="30" rx="10" ry="12" stroke="#a0a0a0" stroke-width="1"/>
+          <path d="M33 42 C31 60, 32 70, 34 78" stroke="#a0a0a0" stroke-width="1"/>
+          <path d="M47 42 C49 60, 48 70, 46 78" stroke="#a0a0a0" stroke-width="1"/>
+        </svg>
+        <div>Product photo<br/>coming soon</div>
+        <div style="font-size:8px; opacity:0.5; margin-top:4px">Upload your image to replace this</div>
+      </div>
+    </div>
+
+    <div class="product-info reveal">
+      <p class="product-label">Signature Piece</p>
+      <h2 class="product-name">The Angel<br/>Oversized Hoodie</h2>
+      <p class="product-desc">
+        Bold gothic energy meets angelic symbolism. Monochrome angel artwork, signature halo-wing graphics, and gothic HaloHaven typography — crafted for comfort, built for statement.
+      </p>
+      <div class="product-tags">
+        <span class="tag">Oversized Fit</span>
+        <span class="tag">Black on Black</span>
+        <span class="tag">Gothic Art</span>
+        <span class="tag">Premium Cotton</span>
+        <span class="tag">Luxury Streetwear</span>
+      </div>
+      <div class="product-price">
+        GH₵ 380 <span>Free Shipping</span>
+      </div>
+      <div style="display:flex; gap:16px; flex-wrap:wrap;">
+        <a href="https://j-k-9945.myshopify.com" target="_blank" class="btn-primary">Order Now</a>
+        <a href="#sizing" class="btn-ghost">Size Guide</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features">
+    <div class="features-header reveal">
+      <span class="section-eyebrow">Why HaloHaven</span>
+      <h2 class="section-title">Designed With<br/>Intention</h2>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-item reveal">
+        <svg class="feature-icon" viewBox="0 0 48 48" fill="none">
+          <ellipse cx="24" cy="10" rx="14" ry="3" stroke="#c9a84c" stroke-width="1.2"/>
+          <path d="M24 22 C16 16, 4 15, 2 24 C8 30, 18 28, 24 32" stroke="#a0a0a0" stroke-width="1.2" fill="none"/>
+          <path d="M24 22 C32 16, 44 15, 46 24 C40 30, 30 28, 24 32" stroke="#a0a0a0" stroke-width="1.2" fill="none"/>
+          <ellipse cx="24" cy="18" rx="6" ry="7" stroke="#c8c8c8" stroke-width="1.2"/>
+        </svg>
+        <h3 class="feature-name">Angelic Artwork</h3>
+        <p class="feature-desc">Detailed monochrome angel prints and signature halo-wing graphics — every piece is a canvas.</p>
+      </div>
+      <div class="feature-item reveal">
+        <svg class="feature-icon" viewBox="0 0 48 48" fill="none">
+          <rect x="8" y="12" width="32" height="28" rx="2" stroke="#c8c8c8" stroke-width="1.2"/>
+          <path d="M8 20 L40 20" stroke="#a0a0a0" stroke-width="0.8"/>
+          <path d="M24 12 L24 40" stroke="#a0a0a0" stroke-width="0.8"/>
+          <circle cx="24" cy="16" r="2" fill="#c9a84c"/>
+        </svg>
+        <h3 class="feature-name">Premium Craft</h3>
+        <p class="feature-desc">Heavyweight cotton blend, brushed interior, reinforced seams — built to last, meant to be worn.</p>
+      </div>
+      <div class="feature-item reveal">
+        <svg class="feature-icon" viewBox="0 0 48 48" fill="none">
+          <path d="M24 8 L28 18 L40 18 L30 25 L34 36 L24 29 L14 36 L18 25 L8 18 L20 18 Z" stroke="#c9a84c" stroke-width="1.2" fill="none"/>
+        </svg>
+        <h3 class="feature-name">Gothic Luxury</h3>
+        <p class="feature-desc">Typography and symbolism drawn from sacred and gothic traditions — elevated to streetwear status.</p>
+      </div>
+      <div class="feature-item reveal">
+        <svg class="feature-icon" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="24" r="14" stroke="#c8c8c8" stroke-width="1.2"/>
+          <path d="M24 10 L24 38M10 24 L38 24" stroke="#a0a0a0" stroke-width="0.8"/>
+          <circle cx="24" cy="24" r="4" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+        </svg>
+        <h3 class="feature-name">Oversized Fit</h3>
+        <p class="feature-desc">Designed for layering and drape — wears like a statement, moves like a second skin.</p>
+      </div>
+      <div class="feature-item reveal">
+        <svg class="feature-icon" viewBox="0 0 48 48" fill="none">
+          <path d="M12 36 L12 20 L24 12 L36 20 L36 36 Z" stroke="#c8c8c8" stroke-width="1.2" fill="none"/>
+          <path d="M18 36 L18 26 L24 22 L30 26 L30 36" stroke="#a0a0a0" stroke-width="0.8" fill="none"/>
+          <circle cx="24" cy="16" r="2" fill="#c9a84c"/>
+        </svg>
+        <h3 class="feature-name">Night Aesthetic</h3>
+        <p class="feature-desc">Perfect for night outfits, modern gothic fashion, and layered looks that command any room.</p>
+      </div>
+      <div class="feature-item reveal">
+        <svg class="feature-icon" viewBox="0 0 48 48" fill="none">
+          <path d="M8 24 C8 15, 16 10, 24 10 C32 10, 40 15, 40 24 C40 35, 32 40, 24 40 C16 40, 8 35, 8 24Z" stroke="#c8c8c8" stroke-width="1.2" fill="none"/>
+          <path d="M18 24 L22 28 L30 20" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h3 class="feature-name">Complete Set</h3>
+        <p class="feature-desc">Pair with the matching HaloHaven shorts for a unified, head-to-toe luxury streetwear identity.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE SET -->
+  <section id="set" style="padding: 140px 48px; border-top: 1px solid var(--border);">
+    <div class="set-section" style="padding: 0; margin: 0 auto;">
+      <div class="product-info reveal">
+        <p class="product-label">Complete the Look</p>
+        <h2 class="product-name">The HaloHaven<br/>Full Set</h2>
+        <p class="product-desc">
+          The hoodie was just the beginning. Complete the blessed rebellion with matching HaloHaven shorts — same gothic typography, same angelic energy. Two pieces. One vision.
+        </p>
+        <div class="product-tags">
+          <span class="tag">Hoodie + Shorts</span>
+          <span class="tag">Matching Set</span>
+          <span class="tag">Black on Black</span>
+        </div>
+        <div class="product-price">
+          GH₵ 580 <span>Bundle Deal</span>
+        </div>
+        <a href="https://j-k-9945.myshopify.com" target="_blank" class="btn-primary" style="display:inline-block;">Get the Set</a>
+      </div>
+      <div class="set-visual reveal">
+        <div class="set-card" style="height: 280px;">
+          <div>
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:12px; opacity:0.4">
+              <ellipse cx="24" cy="10" rx="14" ry="3" stroke="#c9a84c" stroke-width="1"/>
+              <path d="M24 22 C16 16, 4 15, 2 24 C8 30, 18 28, 24 32" stroke="#a0a0a0" stroke-width="1" fill="none"/>
+              <path d="M24 22 C32 16, 44 15, 46 24 C40 30, 30 28, 24 32" stroke="#a0a0a0" stroke-width="1" fill="none"/>
+              <ellipse cx="24" cy="18" rx="6" ry="7" stroke="#a0a0a0" stroke-width="1"/>
+              <path d="M18 32 L16 46M30 32 L32 46" stroke="#a0a0a0" stroke-width="1"/>
+            </svg>
+            <div>Angel Hoodie<br/><span style="opacity:0.4; font-size:8px">Oversized · Gothic Art · Black</span></div>
+          </div>
+        </div>
+        <div class="set-card" style="height: 280px;">
+          <div>
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:12px; opacity:0.4">
+              <path d="M10 14 L38 14 L34 42 L14 42 Z" stroke="#a0a0a0" stroke-width="1" fill="none"/>
+              <path d="M24 14 L24 42" stroke="#a0a0a0" stroke-width="0.7"/>
+              <path d="M10 14 L14 22 M38 14 L34 22" stroke="#a0a0a0" stroke-width="0.7"/>
+              <text x="24" y="31" text-anchor="middle" fill="#c9a84c" font-size="6" letter-spacing="1" font-family="serif">HH</text>
+            </svg>
+            <div>Halo Shorts<br/><span style="opacity:0.4; font-size:8px">Matching Set · Gothic Trim · Black</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHILOSOPHY -->
+  <section class="philosophy">
+    <div class="philosophy-bg"></div>
+    <p class="section-eyebrow reveal">The HaloHaven Way</p>
+    <blockquote class="philosophy-quote reveal">
+      "Born between heaven and the street — <em>HaloHaven</em> is not just clothing. It's a creed."
+    </blockquote>
+    <p class="philosophy-attr reveal">Serenity &nbsp;✦&nbsp; Rebellion &nbsp;✦&nbsp; Identity</p>
+  </section>
+
+  <!-- SIZING -->
+  <section class="sizing" id="sizing">
+    <div class="sizing-inner">
+      <div class="features-header reveal" style="text-align:left; margin-bottom:0;">
+        <span class="section-eyebrow">Size Guide</span>
+        <h2 class="section-title" style="font-size: clamp(20px, 3vw, 36px);">Hoodie Sizing</h2>
+      </div>
+      <table class="sizing-table reveal">
+        <thead>
+          <tr>
+            <th>Size</th>
+            <th>Chest (cm)</th>
+            <th>Length (cm)</th>
+            <th>Sleeve (cm)</th>
+            <th>Fit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>S</td><td>108</td><td>72</td><td>65</td><td>Oversized</td></tr>
+          <tr><td>M</td><td>116</td><td>75</td><td>67</td><td>Oversized</td></tr>
+          <tr><td>L</td><td>124</td><td>78</td><td>69</td><td>Oversized</td></tr>
+          <tr><td>XL</td><td>132</td><td>81</td><td>71</td><td>Oversized</td></tr>
+          <tr><td>2XL</td><td>140</td><td>84</td><td>73</td><td>Oversized</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top: 24px; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--silver); opacity: 0.6; text-transform: uppercase;">All measurements are of the garment, not the body. Size down for a structured look.</p>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final-cta" id="contact">
+    <div class="final-cta-bg"></div>
+    <h2>Own It</h2>
+    <p>Limited drops. No restocks. Once it's gone, it's gone.</p>
+    <div class="hero-cta">
+      <a href="https://j-k-9945.myshopify.com" target="_blank" class="btn-primary">Place Your Order</a>
+      <a href="https://instagram.com/halohaven" class="btn-ghost">Follow on Instagram</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-logo">HaloHaven</span>
+    <p class="footer-copy">© 2024 HaloHaven. All rights reserved.</p>
+    <ul class="footer-links">
+      <li><a href="#">Instagram</a></li>
+      <li><a href="#">WhatsApp</a></li>
+      <li><a href="mailto:hello@halohaven.com">Email</a></li>
+    </ul>
+  </footer>
+
+  <script>
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top = my + 'px';
+    });
+
+    function animRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top = ry + 'px';
+      requestAnimationFrame(animRing);
+    }
+    animRing();
+
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.transform = 'translate(-50%,-50%) scale(2)';
+        ring.style.transform = 'translate(-50%,-50%) scale(1.5)';
+        ring.style.borderColor = 'rgba(201,168,76,0.6)';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+        ring.style.transform = 'translate(-50%,-50%) scale(1)';
+        ring.style.borderColor = 'rgba(200,200,200,0.4)';
+      });
+    });
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
